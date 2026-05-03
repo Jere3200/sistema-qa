@@ -45,7 +45,8 @@ export function InviteMemberDialog({ open, onOpenChange, projectId }: InviteMemb
       const [m, o] = await Promise.all([getProjectMembers(projectId), getProjectOwnerId(projectId)])
       setMembers(m)
       setOwnerId(o)
-    } catch {
+    } catch (err) {
+      console.error('[InviteDialog] loadMembers:', err)
       toast.error('Error al cargar los miembros')
     }
   }
@@ -63,6 +64,7 @@ export function InviteMemberDialog({ open, onOpenChange, projectId }: InviteMemb
       await loadMembers()
       toast.success('Miembro invitado exitosamente')
     } catch (error) {
+      console.error('[InviteDialog] handleInvite:', error)
       if (error instanceof Error) toast.error(error.message)
       else toast.error('Error al invitar al miembro')
     } finally {

@@ -14,6 +14,8 @@ import {
   CheckCircle2,
   XCircle,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   BookOpen,
   Wrench,
   Target,
@@ -34,11 +36,15 @@ import {
   Clock,
   Shield,
   Calendar,
+  FolderKanban,
+  FlaskConical,
+  CheckSquare,
 } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { cn } from "@/lib/utils"
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
@@ -425,6 +431,249 @@ const methodologies: Methodology[] = [
   }
 ]
 
+// ─── Datos: Flujo de Trabajo ──────────────────────────────────────────────────
+
+interface WorkflowStep {
+  number: number
+  title: string
+  description: string
+  icon: React.ReactNode
+  why: string
+  howTo: string[]
+  tips: string[]
+  warnings?: string[]
+  link: string
+  linkText: string
+}
+
+const workflowSteps: WorkflowStep[] = [
+  {
+    number: 1,
+    title: "Crear un Proyecto",
+    description: "Todo comienza con un proyecto que agrupa el trabajo de desarrollo.",
+    icon: <FolderKanban className="h-6 w-6" />,
+    why: "El proyecto es el contenedor principal que organiza todo el trabajo. Sin un proyecto, no podés crear módulos, historias de usuario ni casos de prueba. Pensalo como la carpeta raíz de tu documentación.",
+    howTo: [
+      "Ve a la sección 'Proyectos' en el menú lateral",
+      "Hacé clic en 'Nuevo Proyecto'",
+      "Completá el nombre, descripción y seleccioná la prioridad",
+      "Guardá el proyecto"
+    ],
+    tips: [
+      "Usá nombres descriptivos que identifiquen claramente el sistema o aplicación",
+      "La descripción debe explicar el objetivo general del proyecto",
+      "Podés tener múltiples proyectos activos simultáneamente"
+    ],
+    link: "/proyectos",
+    linkText: "Ir a Proyectos"
+  },
+  {
+    number: 2,
+    title: "Definir Módulos",
+    description: "Dividí el proyecto en módulos funcionales para organizar mejor el trabajo.",
+    icon: <Layers className="h-6 w-6" />,
+    why: "Los módulos representan las grandes áreas funcionales de tu sistema. Por ejemplo: 'Autenticación', 'Gestión de Usuarios', 'Reportes'. Esta división facilita la organización y permite que diferentes equipos trabajen en paralelo.",
+    howTo: [
+      "Abrí el detalle de un proyecto existente",
+      "En la sección de módulos, hacé clic en 'Agregar Módulo'",
+      "Definí el nombre y descripción del módulo",
+      "El módulo quedará vinculado automáticamente al proyecto"
+    ],
+    tips: [
+      "Identificá los módulos según las funcionalidades principales del negocio",
+      "Un módulo debe ser lo suficientemente grande para contener varias historias de usuario",
+      "Evitá módulos demasiado pequeños o demasiado grandes"
+    ],
+    warnings: [
+      "No crees módulos antes de tener claro el alcance del proyecto"
+    ],
+    link: "/proyectos",
+    linkText: "Ver Proyectos"
+  },
+  {
+    number: 3,
+    title: "Escribir Historias de Usuario",
+    description: "Documentá los requisitos desde la perspectiva del usuario final.",
+    icon: <FileText className="h-6 w-6" />,
+    why: "Las historias de usuario son la forma más efectiva de capturar requisitos porque se centran en el valor para el usuario. El formato 'Como [rol], quiero [acción], para [beneficio]' asegura que siempre documentamos el propósito detrás de cada funcionalidad.",
+    howTo: [
+      "Ve a 'Historias de Usuario' y hacé clic en 'Nueva Historia'",
+      "Seleccioná el proyecto y módulo correspondiente",
+      "Completá el formato: Como [rol], Quiero [acción], Para [beneficio]",
+      "Agregá los criterios de aceptación que definen cuándo está completa"
+    ],
+    tips: [
+      "Los criterios de aceptación deben ser verificables y específicos",
+      "Una buena historia de usuario es pequeña y entregable en un sprint",
+      "Incluí criterios de aceptación para casos edge y errores"
+    ],
+    warnings: [
+      "Una historia sin criterios de aceptación no puede considerarse completa",
+      "Evitá historias demasiado técnicas — enfocate en el valor de negocio"
+    ],
+    link: "/historias",
+    linkText: "Ir a Historias"
+  },
+  {
+    number: 4,
+    title: "Crear Casos de Prueba",
+    description: "Definí cómo verificar que cada historia de usuario funciona correctamente.",
+    icon: <FlaskConical className="h-6 w-6" />,
+    why: "Los casos de prueba son la garantía de calidad. Sin ellos, no hay forma objetiva de verificar que el desarrollo cumple con los requisitos. Una historia no puede marcarse como 'Done' sin al menos un caso de prueba aprobado.",
+    howTo: [
+      "Ve a 'Casos de Prueba' y hacé clic en 'Nuevo Caso'",
+      "Vinculá el caso de prueba a una historia de usuario existente",
+      "Usá el formato Gherkin: Dado [contexto], Cuando [acción], Entonces [resultado]",
+      "Definí los pasos detallados y el resultado esperado"
+    ],
+    tips: [
+      "Cada criterio de aceptación debería tener al menos un caso de prueba",
+      "Incluí casos de prueba para escenarios positivos y negativos",
+      "Los pasos deben ser reproducibles por cualquier persona del equipo"
+    ],
+    warnings: [
+      "No marques una historia como 'Done' sin casos de prueba aprobados",
+      "Un caso de prueba fallido bloquea el cierre de la historia"
+    ],
+    link: "/casos-prueba",
+    linkText: "Ir a Casos de Prueba"
+  },
+  {
+    number: 5,
+    title: "Ejecutar y Actualizar Estados",
+    description: "Seguí el flujo de estados para mantener la trazabilidad actualizada.",
+    icon: <CheckSquare className="h-6 w-6" />,
+    why: "El flujo de estados (Backlog → In Progress → Testing → Done) refleja el ciclo de vida real del desarrollo. Mantener los estados actualizados permite al equipo saber exactamente qué está pasando y detectar cuellos de botella.",
+    howTo: [
+      "Las historias nuevas comienzan en 'Backlog'",
+      "Cuando inicia el desarrollo, movela a 'In Progress'",
+      "Al terminar el desarrollo, pasá a 'Testing'",
+      "Solo cuando los casos de prueba pasen, marcá como 'Done'"
+    ],
+    tips: [
+      "Actualizá los estados en tiempo real para mantener visibilidad",
+      "El Dashboard muestra métricas basadas en estos estados",
+      "Los casos de prueba tienen su propio flujo: Pending → Passed / Failed / Blocked"
+    ],
+    warnings: [
+      "Una historia no puede pasar a 'Done' si tiene casos de prueba en 'Failed' o 'Blocked'"
+    ],
+    link: "/historias",
+    linkText: "Ver Estados"
+  },
+  {
+    number: 6,
+    title: "Revisar la Matriz de Trazabilidad",
+    description: "Verificá que cada requisito tiene cobertura de pruebas adecuada.",
+    icon: <GitBranch className="h-6 w-6" />,
+    why: "La matriz de trazabilidad es tu herramienta de auditoría. Muestra la relación entre historias de usuario y casos de prueba, permitiendo identificar requisitos sin cobertura y asegurar que nada se quede sin probar.",
+    howTo: [
+      "Ve a la sección 'Trazabilidad' en el menú",
+      "Seleccioná el proyecto que querés analizar",
+      "Revisá la matriz que cruza historias con casos de prueba",
+      "Identificá historias sin casos de prueba (celdas vacías)"
+    ],
+    tips: [
+      "Una buena cobertura tiene al menos 2-3 casos de prueba por historia",
+      "Prestá atención a las historias de alta prioridad sin cobertura",
+      "Usá la matriz antes de cada release para validar completitud"
+    ],
+    link: "/trazabilidad",
+    linkText: "Ver Matriz"
+  }
+]
+
+function WorkflowStepCard({ step, isExpanded, onToggle }: { step: WorkflowStep; isExpanded: boolean; onToggle: () => void }) {
+  return (
+    <Card className={cn("transition-all duration-200", isExpanded && "ring-2 ring-primary/20")}>
+      <Collapsible open={isExpanded} onOpenChange={onToggle}>
+        <CollapsibleTrigger asChild>
+          <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                {step.icon}
+              </div>
+              <div className="flex-1">
+                <Badge variant="outline" className="text-xs mb-1">Paso {step.number}</Badge>
+                <CardTitle className="mt-1">{step.title}</CardTitle>
+                <CardDescription className="mt-1">{step.description}</CardDescription>
+              </div>
+              <Button variant="ghost" size="icon" className="shrink-0">
+                {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              </Button>
+            </div>
+          </CardHeader>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <CardContent className="pt-0">
+            <div className="ml-16 space-y-5">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+                  <Lightbulb className="h-4 w-4" />
+                  ¿Por qué es importante?
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">{step.why}</p>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm font-semibold">
+                  <BookOpen className="h-4 w-4" />
+                  Cómo hacerlo
+                </div>
+                <ol className="space-y-1.5">
+                  {step.howTo.map((item, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium">{i + 1}</span>
+                      {item}
+                    </li>
+                  ))}
+                </ol>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm font-semibold text-green-600">
+                  <CheckCircle2 className="h-4 w-4" />
+                  Consejos
+                </div>
+                <ul className="space-y-1">
+                  {step.tips.map((tip, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                      <span className="text-green-600">•</span>
+                      {tip}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              {step.warnings && step.warnings.length > 0 && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-amber-600">
+                    <AlertTriangle className="h-4 w-4" />
+                    Precauciones
+                  </div>
+                  <ul className="space-y-1">
+                    {step.warnings.map((w, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                        <span className="text-amber-600">•</span>
+                        {w}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <div className="pt-1">
+                <Button asChild>
+                  <Link href={step.link}>
+                    {step.linkText}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </CollapsibleContent>
+      </Collapsible>
+    </Card>
+  )
+}
+
 // ─── Componentes ──────────────────────────────────────────────────────────────
 
 function TarjetaEtapa({ etapa, seleccionada, onClick }: { etapa: Etapa; seleccionada: boolean; onClick: () => void }) {
@@ -553,6 +802,7 @@ function DetalleEtapa({ etapa }: { etapa: Etapa }) {
 
 export function LearnContent() {
   const [etapaSeleccionada, setEtapaSeleccionada] = useState<Etapa>(etapas[0])
+  const [expandedStep, setExpandedStep] = useState<number | null>(1)
 
   return (
     <div className="space-y-8">
@@ -602,7 +852,7 @@ export function LearnContent() {
       </Card>
 
       <Tabs defaultValue="proceso" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="proceso">
             <ChevronRight className="mr-1 h-4 w-4" />
             Las 6 Fases
@@ -618,6 +868,10 @@ export function LearnContent() {
           <TabsTrigger value="errores">
             <AlertTriangle className="mr-1 h-4 w-4" />
             Errores
+          </TabsTrigger>
+          <TabsTrigger value="flujo">
+            <FolderKanban className="mr-1 h-4 w-4" />
+            Flujo de Trabajo
           </TabsTrigger>
         </TabsList>
 
@@ -893,6 +1147,77 @@ export function LearnContent() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* ── Tab 5: Flujo de Trabajo en RQA-Tracer ── */}
+        <TabsContent value="flujo" className="space-y-6 pt-4">
+          <div>
+            <h2 className="text-lg font-semibold">Cómo usar RQA-Tracer paso a paso</h2>
+            <p className="text-sm text-muted-foreground">Seguí este flujo para documentar requisitos y asegurar la calidad de tus proyectos</p>
+          </div>
+
+          {/* Flujo visual */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Flujo de Trabajo</CardTitle>
+              <CardDescription>Hacé clic en cada paso para ir directo a ese punto del flujo</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                {workflowSteps.map((step, index) => (
+                  <div key={step.number} className="flex items-center gap-2">
+                    <button
+                      onClick={() => setExpandedStep(step.number)}
+                      className={cn(
+                        "flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors",
+                        expandedStep === step.number
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted hover:bg-muted/80"
+                      )}
+                    >
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-background/20 text-xs">
+                        {step.number}
+                      </span>
+                      <span className="hidden sm:inline">{step.title}</span>
+                    </button>
+                    {index < workflowSteps.length - 1 && (
+                      <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Pasos detallados */}
+          <div className="space-y-4">
+            {workflowSteps.map((step) => (
+              <WorkflowStepCard
+                key={step.number}
+                step={step}
+                isExpanded={expandedStep === step.number}
+                onToggle={() => setExpandedStep(expandedStep === step.number ? null : step.number)}
+              />
+            ))}
+          </div>
+
+          {/* Regla de negocio clave */}
+          <Card className="border-amber-500/20 bg-amber-500/5">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-amber-600">
+                <AlertTriangle className="h-5 w-5" />
+                Regla de Negocio Clave
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm leading-relaxed">
+                <strong>Una Historia de Usuario no puede marcarse como &quot;Done&quot; hasta que tenga al menos un Caso de Prueba con estado &quot;Passed&quot;.</strong>
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Esta regla garantiza que cada funcionalidad entregada ha sido verificada y cumple con los criterios de aceptación definidos. Es la base de la trazabilidad entre requisitos y pruebas.
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
 
       {/* Consejos para el Éxito */}
@@ -963,7 +1288,7 @@ export function LearnContent() {
             </div>
             <div className="flex flex-wrap gap-2">
               <Button asChild variant="outline">
-                <Link href="/guia">Ver Guía del Analista</Link>
+                <Link href="/aprender?tab=flujo">Ver flujo de trabajo</Link>
               </Button>
               <Button asChild>
                 <Link href="/proyectos">

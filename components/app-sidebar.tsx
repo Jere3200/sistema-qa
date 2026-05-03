@@ -10,7 +10,6 @@ import {
   GitCompare,
   Settings,
   ChevronDown,
-  HelpCircle,
   Lightbulb,
   LogOut,
 } from 'lucide-react'
@@ -153,44 +152,23 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <Collapsible defaultOpen className="group/collapsible">
-            <SidebarGroupLabel asChild>
-              <CollapsibleTrigger className="flex w-full items-center justify-between">
-                Aprender
-                <ChevronDown className="ml-auto size-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
-              </CollapsibleTrigger>
-            </SidebarGroupLabel>
-            <CollapsibleContent>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={pathname === '/aprender'}
-                      tooltip="Desarrollo de Sistemas"
-                    >
-                      <Link href="/aprender">
-                        <Lightbulb />
-                        <span>Desarrollo de Sistemas</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={pathname === '/guia'}
-                      tooltip="Guía del Analista"
-                    >
-                      <Link href="/guia">
-                        <HelpCircle />
-                        <span>Guía del Analista</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </CollapsibleContent>
-          </Collapsible>
+          <SidebarGroupLabel>Aprender</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === '/aprender'}
+                  tooltip="Desarrollo de Sistemas"
+                >
+                  <Link href="/aprender">
+                    <Lightbulb />
+                    <span>Desarrollo de Sistemas</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
 

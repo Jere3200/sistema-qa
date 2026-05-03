@@ -110,7 +110,9 @@ export async function inviteMember(projectId: string, email: string): Promise<vo
     .select('id')
     .eq('email', email.toLowerCase().trim())
     .single()
-  if (profileError || !profile) throw new Error('No existe ningún usuario con ese email')
+  if (profileError || !profile) throw new Error(
+    'No se encontró ningún usuario con ese email. El usuario debe registrarse primero en la app.'
+  )
 
   const { error } = await supabase
     .from('project_members')
