@@ -419,7 +419,6 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
             </CardContent>
           </Card>
         </TabsContent>
-      </Tabs>
 
         <TabsContent value="metrics" className="mt-4">
           <ProjectMetricsTab
@@ -428,6 +427,7 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
             modules={modules}
           />
         </TabsContent>
+      </Tabs>
 
       <ModuleDialog
         open={moduleDialogOpen}
