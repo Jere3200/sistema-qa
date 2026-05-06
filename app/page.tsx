@@ -1,15 +1,16 @@
 'use client'
 
-import { useRef, Fragment } from 'react'
+import { useRef, Fragment, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { AlertTriangle, ArrowRight } from 'lucide-react'
-import { motion, useInView } from 'framer-motion'
+import { AlertTriangle, ArrowRight, ChevronDown } from 'lucide-react'
+import { motion, useInView, animate } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1]
+const SPRING = { type: 'spring' as const, stiffness: 380, damping: 26 }
 const VALUE_PROPS = ['Sin instalación', 'Sin base de datos', '100% en el navegador', 'Gratis']
 
-// ─── Matrix helpers (algorithms from original HTML) ────────────────────────────
+// ─── Matrix helpers ────────────────────────────────────────────────────────────
 
 function getBigCell(r: number, c: number): 'pass' | 'warn' | 'fail' | 'empty' {
   const v = (r * 7 + c * 3 + 1) % 5
@@ -26,9 +27,12 @@ function getMiniCell(r: number, c: number): 'pass' | 'warn' | 'empty' {
   return 'pass'
 }
 
+// Cells stagger in when the grid enters the viewport
 function BigMatrix() {
+  const ref = useRef(null)
+  const inView = useInView(ref, { once: true, margin: '-60px' })
   return (
-    <div className="w-full">
+    <div ref={ref} className="w-full">
       <div className="grid gap-1" style={{ gridTemplateColumns: '50px repeat(8, 1fr)' }}>
         <div />
         {Array.from({ length: 8 }, (_, c) => (
@@ -40,8 +44,11 @@ function BigMatrix() {
             {Array.from({ length: 8 }, (_, c) => {
               const s = getBigCell(r, c)
               return (
-                <div
+                <motion.div
                   key={c}
+                  initial={{ opacity: 0, scale: 0.4 }}
+                  animate={inView ? { opacity: 1, scale: 1 } : {}}
+                  transition={{ ...SPRING, delay: 0.1 + (r * 8 + c) * 0.018 }}
                   className={`h-[18px] rounded-[3px] ${
                     s === 'pass' ? 'bg-teal-500' :
                     s === 'warn' ? 'bg-amber-400' :
@@ -59,8 +66,10 @@ function BigMatrix() {
 }
 
 function MiniMatrix() {
+  const ref = useRef(null)
+  const inView = useInView(ref, { once: true, margin: '-40px' })
   return (
-    <div className="grid gap-[3px]" style={{ gridTemplateColumns: '40px repeat(6, 1fr)' }}>
+    <div ref={ref} className="grid gap-[3px]" style={{ gridTemplateColumns: '40px repeat(6, 1fr)' }}>
       <div />
       {Array.from({ length: 6 }, (_, c) => (
         <div key={c} className="text-center font-mono text-[8px] text-gray-400">T{c + 1}</div>
@@ -71,8 +80,11 @@ function MiniMatrix() {
           {Array.from({ length: 6 }, (_, c) => {
             const s = getMiniCell(r, c)
             return (
-              <div
+              <motion.div
                 key={c}
+                initial={{ opacity: 0, scale: 0.4 }}
+                animate={inView ? { opacity: 1, scale: 1 } : {}}
+                transition={{ ...SPRING, delay: 0.1 + (r * 6 + c) * 0.024 }}
                 className={`h-[14px] rounded-[2px] ${
                   s === 'pass' ? 'bg-teal-500' :
                   s === 'warn' ? 'bg-amber-400' :
@@ -83,6 +95,34 @@ function MiniMatrix() {
           })}
         </Fragment>
       ))}
+    </div>
+  )
+}
+
+// ─── Animated stat counter ─────────────────────────────────────────────────────
+
+function AnimatedStat({ num, suffix, label, color }: { num: number; suffix: string; label: string; color: string }) {
+  const ref = useRef(null)
+  const inView = useInView(ref, { once: true })
+  const [count, setCount] = useState(0)
+
+  useEffect(() => {
+    if (!inView) return
+    const controls = animate(0, num, {
+      duration: 1.4,
+      ease: [0.16, 1, 0.3, 1],
+      onUpdate: (v) => setCount(Math.round(v)),
+    })
+    return controls.stop
+  }, [inView, num])
+
+  return (
+    <div ref={ref} className="relative overflow-hidden rounded-lg border border-gray-100 p-3">
+      <div className="absolute left-0 right-0 top-0 h-0.5" style={{ background: color }} />
+      <div className="text-[22px] font-semibold tracking-[-0.5px] text-gray-900">
+        {count}{suffix}
+      </div>
+      <div className="mt-0.5 text-[11.5px] text-gray-400">{label}</div>
     </div>
   )
 }
@@ -111,23 +151,34 @@ function Navbar() {
             { label: 'Trazabilidad', href: '#trazabilidad' },
             { label: 'Cómo funciona', href: '#como-funciona' },
             { label: 'Recursos', href: '#recursos' },
-          ].map((link) => (
-            <a key={link.label} href={link.href} className="text-[13.5px] font-[450] text-gray-600 transition-colors hover:text-gray-900">
+          ].map((link, i) => (
+            <motion.a
+              key={link.label}
+              href={link.href}
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 + i * 0.05, ease: EASE, duration: 0.4 }}
+              className="text-[13.5px] font-[450] text-gray-600 transition-colors hover:text-gray-900"
+            >
               {link.label}
-            </a>
+            </motion.a>
           ))}
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
-          <Button variant="ghost" className="hidden text-[13.5px] text-gray-600 hover:text-gray-900 sm:flex" asChild>
-            <Link href="/login">Iniciar sesión</Link>
-          </Button>
-          <Button className="gap-2 bg-teal-600 text-sm font-medium text-white shadow-sm hover:bg-teal-700" asChild>
-            <Link href="/register">
-              Comenzar gratis
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Button>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+            <Button variant="ghost" className="hidden text-[13.5px] text-gray-600 hover:text-gray-900 sm:flex" asChild>
+              <Link href="/login">Iniciar sesión</Link>
+            </Button>
+          </motion.div>
+          <motion.div initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.35, ...SPRING }}>
+            <Button className="gap-2 bg-teal-600 text-sm font-medium text-white shadow-sm hover:bg-teal-700" asChild>
+              <Link href="/register">
+                Comenzar gratis
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </motion.div>
         </div>
       </div>
     </header>
@@ -138,42 +189,60 @@ function Navbar() {
 
 function HeroSection() {
   return (
-    <section
-      className="relative border-b border-gray-200 px-8 pb-16 pt-20"
-      style={{ background: 'radial-gradient(circle at 50% 0%, rgba(226,245,238,0.5) 0%, transparent 55%)' }}
-    >
+    <section className="relative overflow-hidden border-b border-gray-200 px-8 pb-16 pt-20">
+
+      {/* Pulsing gradient background */}
+      <motion.div
+        animate={{ scale: [1, 1.06, 1], opacity: [0.45, 0.65, 0.45] }}
+        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[600px]"
+        style={{ background: 'radial-gradient(circle at 50% 0%, rgba(20,184,166,0.13) 0%, transparent 60%)' }}
+      />
+
       <div className="relative mx-auto max-w-[1240px]">
 
         {/* Pill */}
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: EASE }}
           className="mb-7"
         >
           <span className="inline-flex items-center gap-1.5 rounded border border-teal-200 bg-teal-50 px-3 py-1 text-[11px] font-medium text-teal-700">
-            <span className="h-[5px] w-[5px] rounded-full bg-teal-500" />
+            <motion.span
+              animate={{ opacity: [1, 0.4, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="h-[5px] w-[5px] rounded-full bg-teal-500"
+            />
             Proyecto académico · Datos locales · Sin backend
           </span>
         </motion.div>
 
-        {/* H1 */}
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55, delay: 0.06, ease: EASE }}
-          className="max-w-[1100px] text-[52px] font-semibold leading-[.98] tracking-[-1.8px] text-gray-900 sm:text-[68px] lg:text-[84px] lg:tracking-[-2.6px]"
-        >
-          Trazabilidad de <span className="text-teal-600">Requisitos</span>
-          <br />
-          y <span className="text-teal-600">QA</span>, en un solo lugar.
-        </motion.h1>
+        {/* H1 — two lines animate from opposite sides */}
+        <h1 className="max-w-[1100px] text-[52px] font-semibold leading-[.98] tracking-[-1.8px] text-gray-900 sm:text-[68px] lg:text-[84px] lg:tracking-[-2.6px]">
+          <motion.span
+            initial={{ opacity: 0, x: -28 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.06, ease: EASE }}
+            className="block"
+          >
+            Trazabilidad de <span className="text-teal-600">Requisitos</span>
+          </motion.span>
+          <motion.span
+            initial={{ opacity: 0, x: 28 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.14, ease: EASE }}
+            className="block"
+          >
+            y <span className="text-teal-600">QA</span>, en un solo lugar.
+          </motion.span>
+        </h1>
 
-        {/* Lead */}
+        {/* Lead — blur fade */}
         <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55, delay: 0.12, ease: EASE }}
+          initial={{ opacity: 0, filter: 'blur(8px)', y: 12 }}
+          animate={{ opacity: 1, filter: 'blur(0px)', y: 0 }}
+          transition={{ duration: 0.65, delay: 0.22, ease: EASE }}
           className="mt-7 max-w-[640px] text-[19px] font-normal leading-[1.55] text-gray-600"
         >
           Documentá <strong className="font-semibold text-gray-900">historias de usuario</strong>,{' '}
@@ -182,23 +251,31 @@ function HeroSection() {
           instalación, sin backend, 100% en el navegador.
         </motion.p>
 
-        {/* CTA */}
+        {/* CTA buttons */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55, delay: 0.18, ease: EASE }}
+          transition={{ duration: 0.5, delay: 0.3, ease: EASE }}
           className="mt-9 flex flex-wrap items-center gap-2.5"
         >
-          <Button
-            size="lg"
-            className="h-12 gap-2 bg-teal-600 px-[22px] text-[14.5px] font-medium text-white shadow-lg shadow-teal-100/60 hover:bg-teal-700"
-            asChild
-          >
-            <Link href="/register">
-              Comenzar gratis
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Button>
+          {/* Primary with pulse ring */}
+          <div className="relative">
+            <motion.div
+              animate={{ scale: [1, 1.18, 1], opacity: [0.35, 0, 0.35] }}
+              transition={{ duration: 2.4, repeat: Infinity, ease: 'easeOut' }}
+              className="absolute inset-0 rounded-lg bg-teal-500/40 blur-sm"
+            />
+            <Button
+              size="lg"
+              className="relative h-12 gap-2 bg-teal-600 px-[22px] text-[14.5px] font-medium text-white shadow-lg shadow-teal-200/60 hover:bg-teal-700"
+              asChild
+            >
+              <Link href="/register">
+                Comenzar gratis
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
           <Button
             size="lg"
             variant="outline"
@@ -213,35 +290,57 @@ function HeroSection() {
         <motion.ul
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.26 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
           className="mt-7 flex flex-wrap gap-7"
           role="list"
         >
-          {VALUE_PROPS.map((item) => (
-            <li key={item} className="flex items-center gap-2 text-[13.5px] text-gray-600">
+          {VALUE_PROPS.map((item, i) => (
+            <motion.li
+              key={item}
+              initial={{ opacity: 0, x: -8 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.42 + i * 0.06, ease: EASE, duration: 0.4 }}
+              className="flex items-center gap-2 text-[13.5px] text-gray-600"
+            >
               <svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true" className="shrink-0">
                 <circle cx="10" cy="10" r="9" fill="#e2f5ee" stroke="#0e9b78" strokeWidth="1" />
                 <path d="M6 10.5l2.5 2.5L14 7.5" stroke="#0e9b78" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               {item}
-            </li>
+            </motion.li>
           ))}
         </motion.ul>
 
+        {/* Scroll cue */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2, duration: 0.6 }}
+          className="mt-10 flex justify-center"
+        >
+          <motion.div
+            animate={{ y: [0, 7, 0] }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+          >
+            <ChevronDown className="h-5 w-5 text-gray-300" />
+          </motion.div>
+        </motion.div>
+
         {/* Full-width browser preview */}
-        <div className="relative mt-16 pb-10 pt-2">
+        <div className="relative mt-8 pb-12 pt-2">
 
           {/* Floating card: coverage (top-right) */}
           <motion.div
-            initial={{ opacity: 0, y: -12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.5, ease: EASE }}
+            initial={{ opacity: 0, y: -16, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ delay: 0.55, ...SPRING }}
             className="absolute right-8 top-0 z-20 hidden md:block"
           >
             <motion.div
-              animate={{ y: [0, -7, 0] }}
-              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-              className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-[0_12px_30px_-12px_rgba(13,31,26,0.18),0_4px_8px_-4px_rgba(13,31,26,0.06)]"
+              animate={{ y: [0, -8, 0] }}
+              transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
+              whileHover={{ scale: 1.04 }}
+              className="flex cursor-default items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-[0_12px_30px_-12px_rgba(13,31,26,0.18),0_4px_8px_-4px_rgba(13,31,26,0.06)]"
             >
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-teal-50">
                 <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
@@ -257,9 +356,10 @@ function HeroSection() {
 
           {/* Browser window */}
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.34, ease: EASE }}
+            initial={{ opacity: 0, y: 32, rotateX: 4 }}
+            animate={{ opacity: 1, y: 0, rotateX: 0 }}
+            transition={{ duration: 0.8, delay: 0.38, ease: EASE }}
+            style={{ perspective: 1200 }}
             className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-[0_1px_0_rgba(0,0,0,.02),0_24px_60px_-28px_rgba(13,31,26,.18),0_8px_16px_-8px_rgba(13,31,26,.06)]"
           >
             {/* Chrome bar */}
@@ -306,26 +406,19 @@ function HeroSection() {
                     + Nuevo proyecto
                   </div>
                 </div>
+                {/* Stats with count-up */}
                 <div className="mb-5 grid grid-cols-4 gap-2.5">
-                  {[
-                    { num: '12', label: 'Proyectos', c: '#2563eb' },
-                    { num: '48', label: 'Historias', c: '#7c3aed' },
-                    { num: '127', label: 'Pruebas', c: '#0e9b78' },
-                    { num: '94%', label: 'Cobertura', c: '#0e9b78' },
-                  ].map((s) => (
-                    <div key={s.label} className="relative overflow-hidden rounded-lg border border-gray-100 p-3">
-                      <div className="absolute left-0 right-0 top-0 h-0.5" style={{ background: s.c }} />
-                      <div className="text-[22px] font-semibold tracking-[-0.5px] text-gray-900">{s.num}</div>
-                      <div className="mt-0.5 text-[11.5px] text-gray-400">{s.label}</div>
-                    </div>
-                  ))}
+                  <AnimatedStat num={12}  suffix=""  label="Proyectos" color="#2563eb" />
+                  <AnimatedStat num={48}  suffix=""  label="Historias"  color="#7c3aed" />
+                  <AnimatedStat num={127} suffix=""  label="Pruebas"    color="#0e9b78" />
+                  <AnimatedStat num={94}  suffix="%" label="Cobertura"  color="#0e9b78" />
                 </div>
                 <div className="flex flex-col gap-1.5">
                   {[
-                    { code: 'US-001', title: 'Login de usuario', badge: 'Completado', cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-                    { code: 'US-002', title: 'Gestión de proyectos', badge: 'En Pruebas', cls: 'bg-purple-50 text-purple-700 border-purple-200' },
-                    { code: 'US-003', title: 'Matriz de trazabilidad', badge: 'En Progreso', cls: 'bg-blue-50 text-blue-700 border-blue-200' },
-                    { code: 'US-004', title: 'Casos de prueba Gherkin', badge: 'Pendiente', cls: 'bg-amber-50 text-amber-700 border-amber-200' },
+                    { code: 'US-001', title: 'Login de usuario',        badge: 'Completado', cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+                    { code: 'US-002', title: 'Gestión de proyectos',    badge: 'En Pruebas',  cls: 'bg-purple-50 text-purple-700 border-purple-200' },
+                    { code: 'US-003', title: 'Matriz de trazabilidad',  badge: 'En Progreso', cls: 'bg-blue-50 text-blue-700 border-blue-200' },
+                    { code: 'US-004', title: 'Casos de prueba Gherkin', badge: 'Pendiente',   cls: 'bg-amber-50 text-amber-700 border-amber-200' },
                   ].map((row) => (
                     <div key={row.code} className="flex items-center gap-3.5 rounded-lg border border-gray-100 px-3.5 py-2.5">
                       <span className="w-12 shrink-0 font-mono text-[11px] text-gray-400">{row.code}</span>
@@ -342,15 +435,16 @@ function HeroSection() {
 
           {/* Floating card: approved (bottom-left) */}
           <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.65, ease: EASE }}
+            initial={{ opacity: 0, y: 16, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ delay: 0.72, ...SPRING }}
             className="absolute bottom-0 left-16 z-20 hidden md:block"
           >
             <motion.div
               animate={{ y: [0, 7, 0] }}
-              transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut', delay: 0.6 }}
-              className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-[0_12px_30px_-12px_rgba(13,31,26,0.18),0_4px_8px_-4px_rgba(13,31,26,0.06)]"
+              transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut', delay: 0.7 }}
+              whileHover={{ scale: 1.04 }}
+              className="flex cursor-default items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-[0_12px_30px_-12px_rgba(13,31,26,0.18),0_4px_8px_-4px_rgba(13,31,26,0.06)]"
             >
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-teal-50">
                 <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
@@ -375,8 +469,8 @@ function HeroSection() {
 function ProjectsMock() {
   const projects = [
     { name: 'Sistema de E-commerce', meta: '8 módulos', pct: 75, bar: 'bg-teal-600', txt: 'text-teal-600' },
-    { name: 'Banca Digital v2', meta: '12 módulos', pct: 42, bar: 'bg-blue-600', txt: 'text-blue-600' },
-    { name: 'Plataforma educativa', meta: '6 módulos', pct: 91, bar: 'bg-violet-600', txt: 'text-violet-600' },
+    { name: 'Banca Digital v2',      meta: '12 módulos', pct: 42, bar: 'bg-blue-600', txt: 'text-blue-600' },
+    { name: 'Plataforma educativa',  meta: '6 módulos',  pct: 91, bar: 'bg-violet-600', txt: 'text-violet-600' },
   ]
   return (
     <div className="w-full space-y-2">
@@ -401,9 +495,7 @@ function StoriesMock() {
     <div className="w-full rounded-lg border border-gray-100 bg-white p-3.5">
       <div className="mb-2.5 flex items-center justify-between">
         <span className="font-mono text-[11px] text-gray-400">US-118</span>
-        <span className="rounded border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
-          In review
-        </span>
+        <span className="rounded border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">In review</span>
       </div>
       <div className="mb-2.5 text-sm font-medium text-gray-900">Recuperación de contraseña</div>
       <div className="rounded-md border border-gray-100 bg-gray-50 px-2.5 py-2 text-[12.5px] leading-relaxed text-gray-600">
@@ -412,9 +504,7 @@ function StoriesMock() {
         <strong className="text-gray-900">para</strong> volver a entrar sin contactar soporte.
       </div>
       <div className="mt-2.5 flex gap-3 font-mono text-[11px] text-gray-400">
-        <span>3 criterios</span>
-        <span>·</span>
-        <span>Módulo: Auth</span>
+        <span>3 criterios</span><span>·</span><span>Módulo: Auth</span>
       </div>
     </div>
   )
@@ -450,26 +540,10 @@ function MatrixMock() {
 }
 
 const TOOLS = [
-  {
-    id: 'projects', number: '01', title: 'Gestión de Proyectos',
-    description: 'Organizá tu trabajo en proyectos y módulos. Seguí el estado de cada entregable en tiempo real.',
-    tag: 'text-blue-600 bg-blue-50', bg: 'from-blue-50/30', Mock: ProjectsMock,
-  },
-  {
-    id: 'stories', number: '02', title: 'Historias de Usuario',
-    description: 'Documentá requisitos en formato estándar con criterios de aceptación verificables y trazables.',
-    tag: 'text-violet-600 bg-violet-50', bg: 'from-violet-50/30', Mock: StoriesMock,
-  },
-  {
-    id: 'tests', number: '03', title: 'Casos de Prueba',
-    description: 'Escenarios Gherkin (Dado / Cuando / Entonces) vinculados directamente a cada historia de usuario.',
-    tag: 'text-teal-600 bg-teal-50', bg: 'from-teal-50/30', Mock: TestCasesMock,
-  },
-  {
-    id: 'matrix', number: '04', title: 'Matriz de Trazabilidad',
-    description: 'Visualizá la cobertura completa. Asegurate de que ningún requisito quede sin su prueba.',
-    tag: 'text-amber-600 bg-amber-50', bg: 'from-amber-50/30', Mock: MatrixMock,
-  },
+  { id: 'projects', number: '01', title: 'Gestión de Proyectos',    description: 'Organizá tu trabajo en proyectos y módulos. Seguí el estado de cada entregable en tiempo real.',                   tag: 'text-blue-600 bg-blue-50',   bg: 'from-blue-50/30',   Mock: ProjectsMock },
+  { id: 'stories',  number: '02', title: 'Historias de Usuario',    description: 'Documentá requisitos en formato estándar con criterios de aceptación verificables y trazables.',                    tag: 'text-violet-600 bg-violet-50', bg: 'from-violet-50/30', Mock: StoriesMock  },
+  { id: 'tests',    number: '03', title: 'Casos de Prueba',         description: 'Escenarios Gherkin (Dado / Cuando / Entonces) vinculados directamente a cada historia de usuario.',                tag: 'text-teal-600 bg-teal-50',   bg: 'from-teal-50/30',   Mock: TestCasesMock },
+  { id: 'matrix',   number: '04', title: 'Matriz de Trazabilidad',  description: 'Visualizá la cobertura completa. Asegurate de que ningún requisito quede sin su prueba.',                          tag: 'text-amber-600 bg-amber-50',  bg: 'from-amber-50/30',  Mock: MatrixMock   },
 ]
 
 function ToolsSection() {
@@ -479,7 +553,7 @@ function ToolsSection() {
     <section ref={ref} className="border-b border-gray-200 px-8 py-[120px]" id="producto">
       <div className="mx-auto max-w-[1240px]">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, ease: EASE }}
           className="mb-16 max-w-[720px]"
@@ -499,19 +573,18 @@ function ToolsSection() {
           {TOOLS.map(({ id, number, title, description, tag, bg, Mock }, i) => (
             <motion.article
               key={id}
-              initial={{ opacity: 0, y: 36, scale: 0.97 }}
+              initial={{ opacity: 0, y: 40, scale: 0.96 }}
               animate={isInView ? { opacity: 1, y: 0, scale: 1 } : {}}
-              transition={{ duration: 0.55, delay: 0.15 + i * 0.1, ease: EASE }}
-              className="grid grid-rows-[1fr_auto] overflow-hidden rounded-2xl border border-gray-200 bg-white transition-colors duration-150 hover:border-gray-300"
+              transition={{ duration: 0.55, delay: 0.1 + i * 0.1, ease: EASE }}
+              whileHover={{ y: -6, boxShadow: '0 20px 48px -16px rgba(13,31,26,0.16)', borderColor: '#cbd5d0', transition: { ...SPRING } }}
+              className="grid cursor-pointer grid-rows-[1fr_auto] overflow-hidden rounded-2xl border border-gray-200 bg-white"
             >
               <div className={`flex min-h-[220px] items-center justify-center bg-gradient-to-b px-7 py-7 ${bg} to-transparent`}>
                 <Mock />
               </div>
               <div className="border-t border-gray-100 px-7 py-6">
                 <div className="mb-2.5">
-                  <span className={`rounded px-2 py-0.5 font-mono text-[11px] font-bold tracking-[0.4px] ${tag}`}>
-                    / {number}
-                  </span>
+                  <span className={`rounded px-2 py-0.5 font-mono text-[11px] font-bold tracking-[0.4px] ${tag}`}>/ {number}</span>
                 </div>
                 <h3 className="mb-2.5 text-[19px] font-semibold tracking-[-0.3px] text-gray-900">{title}</h3>
                 <p className="text-[14.5px] leading-[1.55] text-gray-500">{description}</p>
@@ -531,9 +604,7 @@ function StepFormPanel() {
     <div className="rounded-xl border border-gray-200 bg-white p-3.5">
       <div className="mb-2.5 font-mono text-[11px] uppercase tracking-[0.5px] text-gray-400">Nuevo Proyecto</div>
       <div className="mb-1 text-[11px] text-gray-400">Nombre</div>
-      <div className="mb-2.5 rounded-md border border-gray-200 px-2.5 py-2 text-[13px] text-gray-900">
-        Sistema de E-commerce
-      </div>
+      <div className="mb-2.5 rounded-md border border-gray-200 px-2.5 py-2 text-[13px] text-gray-900">Sistema de E-commerce</div>
       <div className="mb-1 text-[11px] text-gray-400">Módulos</div>
       <div className="flex flex-wrap gap-1.5">
         {['Auth', 'Catálogo', 'Carrito', 'Pago'].map((m) => (
@@ -559,11 +630,17 @@ function StepStoryPanel() {
         <strong className="text-gray-900">para</strong> acceder a mi cuenta.
       </div>
       <div className="mb-1 font-mono text-[11px] uppercase tracking-[0.5px] text-gray-400">Criterios de aceptación</div>
-      {['Validar email y contraseña', 'Mostrar error si son incorrectos', 'Redirigir a dashboard'].map((c) => (
-        <div key={c} className="flex items-center gap-2 py-0.5 text-[12px] text-gray-600">
-          <span className="shrink-0 text-teal-600">✓</span>
-          {c}
-        </div>
+      {['Validar email y contraseña', 'Mostrar error si son incorrectos', 'Redirigir a dashboard'].map((c, i) => (
+        <motion.div
+          key={c}
+          initial={{ opacity: 0, x: -8 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.1 + i * 0.08, ease: EASE, duration: 0.35 }}
+          className="flex items-center gap-2 py-0.5 text-[12px] text-gray-600"
+        >
+          <span className="shrink-0 text-teal-600">✓</span>{c}
+        </motion.div>
       ))}
     </div>
   )
@@ -582,9 +659,9 @@ function StepMatrixPanel() {
 }
 
 const STEPS = [
-  { number: '01', title: 'Creá tu proyecto', description: 'Registrá el proyecto y definí sus módulos funcionales para organizar el trabajo.', Panel: StepFormPanel },
-  { number: '02', title: 'Documentá requisitos', description: 'Escribí historias de usuario con criterios de aceptación claros y verificables.', Panel: StepStoryPanel },
-  { number: '03', title: 'Vinculá las pruebas', description: 'Creá casos de prueba en Gherkin y revisá la cobertura completa en la matriz.', Panel: StepMatrixPanel },
+  { number: '01', title: 'Creá tu proyecto',    description: 'Registrá el proyecto y definí sus módulos funcionales para organizar el trabajo.',                        Panel: StepFormPanel   },
+  { number: '02', title: 'Documentá requisitos', description: 'Escribí historias de usuario con criterios de aceptación claros y verificables.',                         Panel: StepStoryPanel  },
+  { number: '03', title: 'Vinculá las pruebas',  description: 'Creá casos de prueba en Gherkin y revisá la cobertura completa en la matriz.',                            Panel: StepMatrixPanel },
 ]
 
 function HowItWorksSection() {
@@ -594,7 +671,7 @@ function HowItWorksSection() {
     <section ref={ref} className="border-b border-gray-200 bg-gray-50 px-8 py-[120px]" id="como-funciona">
       <div className="mx-auto max-w-[1240px]">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, ease: EASE }}
           className="mb-16 max-w-[720px]"
@@ -608,38 +685,49 @@ function HowItWorksSection() {
         </motion.div>
 
         <div className="relative grid gap-12 sm:gap-0 sm:grid-cols-3">
-          {/* Dashed line between step circles */}
+          {/* Dashed line */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={isInView ? { opacity: 1 } : {}}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="absolute top-7 hidden sm:block"
+            initial={{ scaleX: 0, opacity: 0 }}
+            animate={isInView ? { scaleX: 1, opacity: 1 } : {}}
+            transition={{ duration: 0.8, delay: 0.5, ease: EASE }}
             style={{
+              originX: 0,
+              position: 'absolute',
+              top: 28,
               left: 'calc(33.33% / 2 + 28px)',
               right: 'calc(33.33% / 2 + 28px)',
               height: '1px',
               background: 'repeating-linear-gradient(to right, #bfe5d6 0 6px, transparent 6px 12px)',
             }}
+            className="hidden sm:block"
           />
 
           {STEPS.map(({ number, title, description, Panel }, i) => (
-            <div
-              key={number}
-              className={`relative ${i !== STEPS.length - 1 ? 'sm:pr-7' : ''} ${i !== 0 ? 'sm:pl-7' : ''}`}
-            >
+            <div key={number} className={`relative ${i !== STEPS.length - 1 ? 'sm:pr-7' : ''} ${i !== 0 ? 'sm:pl-7' : ''}`}>
+              {/* Step circle */}
+              <div className="relative mb-6">
+                <motion.div
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={isInView ? { scale: 1, opacity: 1 } : {}}
+                  transition={{ ...SPRING, delay: i * 0.15 + 0.2 }}
+                  className="relative z-10 flex h-14 w-14 items-center justify-center rounded-full border-2 border-teal-600 bg-white font-mono text-base font-semibold text-teal-600"
+                  style={{ boxShadow: '0 0 0 8px #f8faf9, 0 0 0 9px rgba(191,229,214,0.33)' }}
+                >
+                  {number}
+                </motion.div>
+                {/* Pulse ring that fades after appearing */}
+                <motion.div
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={isInView ? { scale: [1, 1.6, 1.6], opacity: [0.6, 0, 0] } : {}}
+                  transition={{ duration: 0.8, delay: i * 0.15 + 0.4 }}
+                  className="absolute left-0 top-0 h-14 w-14 rounded-full border-2 border-teal-400"
+                />
+              </div>
+
               <motion.div
-                initial={{ scale: 0.7, opacity: 0 }}
-                animate={isInView ? { scale: 1, opacity: 1 } : {}}
-                transition={{ type: 'spring', stiffness: 300, damping: 20, delay: i * 0.14 + 0.1 }}
-                className="relative z-10 mb-6 flex h-14 w-14 items-center justify-center rounded-full border-2 border-teal-600 bg-white font-mono text-base font-semibold text-teal-600"
-                style={{ boxShadow: '0 0 0 8px #f8faf9, 0 0 0 9px rgba(191,229,214,0.33)' }}
-              >
-                {number}
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, x: -24 }}
-                animate={isInView ? { opacity: 1, x: 0 } : {}}
-                transition={{ duration: 0.5, delay: i * 0.14, ease: EASE }}
+                initial={{ opacity: 0, y: 20, filter: 'blur(4px)' }}
+                animate={isInView ? { opacity: 1, y: 0, filter: 'blur(0px)' } : {}}
+                transition={{ duration: 0.5, delay: i * 0.15 + 0.1, ease: EASE }}
               >
                 <h3 className="mb-2 text-[22px] font-semibold tracking-[-0.5px] text-gray-900">{title}</h3>
                 <p className="mb-5 max-w-[340px] text-[14.5px] leading-[1.55] text-gray-500">{description}</p>
@@ -656,9 +744,9 @@ function HowItWorksSection() {
 // ─── The Rule ──────────────────────────────────────────────────────────────────
 
 const RULE_ITEMS = [
-  { title: 'No hay "Done" sin verde', body: 'La regla la aplica el sistema, no el equipo.' },
-  { title: 'Estados sincronizados', body: 'La salud de los tests se refleja en la historia.' },
-  { title: 'Auditoría inmediata', body: 'Cada cambio queda registrado por autor y fecha.' },
+  { title: 'No hay "Done" sin verde',  body: 'La regla la aplica el sistema, no el equipo.' },
+  { title: 'Estados sincronizados',    body: 'La salud de los tests se refleja en la historia.' },
+  { title: 'Auditoría inmediata',      body: 'Cada cambio queda registrado por autor y fecha.' },
 ]
 
 function TheRuleSection() {
@@ -668,15 +756,15 @@ function TheRuleSection() {
         <div className="grid items-center gap-[80px] lg:grid-cols-[1.1fr_1fr]">
 
           <motion.div
-            initial={{ opacity: 0, x: -32 }}
+            initial={{ opacity: 0, x: -36 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: '-80px' }}
-            transition={{ duration: 0.55, ease: EASE }}
+            transition={{ duration: 0.6, ease: EASE }}
           >
             <div className="mb-5 inline-flex items-center rounded border border-teal-200 bg-teal-50 px-3 py-1 font-mono text-[11px] font-semibold tracking-[0.4px] text-teal-700">
               LA REGLA
             </div>
-            <h2 className="mt-5 text-[52px] font-semibold leading-[1.02] tracking-[-1.8px] text-gray-900 lg:text-[56px] lg:tracking-[-1.8px]">
+            <h2 className="mt-5 text-[52px] font-semibold leading-[1.02] tracking-[-1.8px] text-gray-900 lg:text-[56px]">
               Trazabilidad<br /><span className="text-teal-600">garantizada.</span>
             </h2>
             <p className="mt-7 max-w-[560px] text-[18px] leading-[1.6] text-gray-600">
@@ -687,61 +775,98 @@ function TheRuleSection() {
               Así verificás que cada funcionalidad entregada fue probada.
             </p>
             <ul className="mt-8 flex flex-col gap-3" role="list">
-              {RULE_ITEMS.map((item) => (
-                <li key={item.title} className="flex items-start gap-3">
-                  <div className="mt-0.5 flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full bg-teal-50 text-[12px] text-teal-600">
-                    ✓
-                  </div>
+              {RULE_ITEMS.map((item, i) => (
+                <motion.li
+                  key={item.title}
+                  initial={{ opacity: 0, x: -16 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: '-60px' }}
+                  transition={{ delay: i * 0.1, ease: EASE, duration: 0.4 }}
+                  className="flex items-start gap-3"
+                >
+                  <div className="mt-0.5 flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full bg-teal-50 text-[12px] text-teal-600">✓</div>
                   <div>
                     <div className="text-[15px] font-medium text-gray-900">{item.title}</div>
                     <div className="text-[13.5px] leading-[1.5] text-gray-500">{item.body}</div>
                   </div>
-                </li>
+                </motion.li>
               ))}
             </ul>
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, x: 32 }}
+            initial={{ opacity: 0, x: 36 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: '-80px' }}
-            transition={{ duration: 0.55, delay: 0.1, ease: EASE }}
+            transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
             className="rounded-2xl border border-gray-200 bg-gray-50 p-7"
           >
             <div className="mb-3 flex items-center justify-between">
               <span className="font-mono text-[11px] text-gray-400">US-208</span>
-              <span className="rounded border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700">
+              <motion.span
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.4, ...SPRING }}
+                className="rounded border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700"
+              >
                 Bloqueado
-              </span>
+              </motion.span>
             </div>
             <h4 className="mb-[18px] text-[18px] font-semibold text-gray-900">Calcular impuestos por región</h4>
 
+            {/* Chain steps — animate sequentially */}
             <div className="mb-[18px] flex flex-wrap items-center gap-1.5 font-mono text-[11px]">
-              {['Pendiente', 'En progreso'].map((s) => (
-                <span key={s} className="rounded border border-gray-200 bg-white px-2.5 py-1.5 text-gray-600">{s}</span>
+              {[
+                { label: 'Pendiente',   cls: 'bg-white text-gray-600 border-gray-200',                      delay: 0.25 },
+                { label: 'En progreso', cls: 'bg-white text-gray-600 border-gray-200',                      delay: 0.37 },
+                { label: 'Completada',  cls: 'bg-white text-gray-400 border-gray-200 line-through opacity-50', delay: 0.49 },
+              ].map(({ label, cls, delay }, i) => (
+                <Fragment key={label}>
+                  <motion.span
+                    initial={{ opacity: 0, x: -8 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true, margin: '-40px' }}
+                    transition={{ delay, ease: EASE, duration: 0.35 }}
+                    className={`rounded border px-2.5 py-1.5 ${cls}`}
+                  >
+                    {label}
+                  </motion.span>
+                  {i < 2 && (
+                    <motion.span
+                      initial={{ opacity: 0 }}
+                      whileInView={{ opacity: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: delay + 0.08 }}
+                      className="text-gray-400"
+                    >
+                      →
+                    </motion.span>
+                  )}
+                </Fragment>
               ))}
-              <span className="text-gray-400">→</span>
-              <span className="rounded border border-gray-200 bg-white px-2.5 py-1.5 text-gray-400 line-through">Completada</span>
             </div>
 
-            <div className="mb-5 flex items-start gap-2.5 rounded-lg border border-red-100 bg-red-50 px-3.5 py-3">
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.6, ease: EASE, duration: 0.4 }}
+              className="mb-5 flex items-start gap-2.5 rounded-lg border border-red-100 bg-red-50 px-3.5 py-3"
+            >
               <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
               <p className="text-[13px] text-red-800">
                 <strong>No se puede completar</strong>: 0 / 1 casos de prueba aprobados requeridos.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="mb-2 font-mono text-[11px] uppercase tracking-[0.5px] text-gray-400">
-              Casos vinculados (1)
-            </div>
+            <div className="mb-2 font-mono text-[11px] uppercase tracking-[0.5px] text-gray-400">Casos vinculados (1)</div>
             <div className="mb-5 flex items-center justify-between rounded-lg border border-gray-200 border-l-[3px] border-l-amber-400 bg-white px-3.5 py-2.5">
               <div className="flex items-center gap-3">
                 <span className="font-mono text-[11px] text-gray-400">TC-208.1</span>
                 <span className="text-[13px] text-gray-900">Cálculo de IVA España</span>
               </div>
-              <span className="rounded border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[11px] font-medium text-amber-700">
-                Sin ejecutar
-              </span>
+              <span className="rounded border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[11px] font-medium text-amber-700">Sin ejecutar</span>
             </div>
 
             <div className="rounded-lg border border-dashed border-gray-200 bg-white px-3 py-2.5">
@@ -764,13 +889,17 @@ function FinalCTASection() {
     <section className="border-b border-gray-200 bg-gray-50 px-8 py-[120px]">
       <div className="mx-auto max-w-[880px] text-center">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 28 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-60px' }}
-          transition={{ duration: 0.5, ease: EASE }}
+          transition={{ duration: 0.55, ease: EASE }}
         >
           <div className="mb-6 inline-flex items-center gap-1.5 rounded border border-teal-200 bg-teal-50 px-3 py-1 text-[11px] font-medium text-teal-700">
-            <span className="h-[5px] w-[5px] rounded-full bg-teal-500" />
+            <motion.span
+              animate={{ opacity: [1, 0.4, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="h-[5px] w-[5px] rounded-full bg-teal-500"
+            />
             Listo para usar en segundos
           </div>
           <h2 className="mt-6 text-[60px] font-semibold leading-[1] tracking-[-2.2px] text-gray-900 sm:text-[72px]">
@@ -780,17 +909,26 @@ function FinalCTASection() {
             Gratis, sin instalación, sin base de datos.<br />
             Tu primer proyecto está listo en menos de 4 minutos.
           </p>
+
           <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-            <Button
-              size="lg"
-              className="h-12 gap-2 bg-teal-600 px-[22px] text-[14.5px] font-medium text-white shadow-lg shadow-teal-100/60 hover:bg-teal-700"
-              asChild
-            >
-              <Link href="/register">
-                Comenzar gratis
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
+            {/* Primary with pulse ring */}
+            <div className="relative">
+              <motion.div
+                animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0, 0.3] }}
+                transition={{ duration: 2.6, repeat: Infinity, ease: 'easeOut' }}
+                className="absolute inset-0 rounded-lg bg-teal-500/40 blur-sm"
+              />
+              <Button
+                size="lg"
+                className="relative h-12 gap-2 bg-teal-600 px-[22px] text-[14.5px] font-medium text-white shadow-lg shadow-teal-200/60 hover:bg-teal-700"
+                asChild
+              >
+                <Link href="/register">
+                  Comenzar gratis
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
             <Button
               size="lg"
               variant="outline"
@@ -800,15 +938,23 @@ function FinalCTASection() {
               <Link href="/login">Ya tengo cuenta</Link>
             </Button>
           </div>
+
           <ul className="mt-8 flex flex-wrap justify-center gap-7" role="list">
-            {VALUE_PROPS.map((item) => (
-              <li key={item} className="flex items-center gap-2 text-[13.5px] text-gray-500">
+            {VALUE_PROPS.map((item, i) => (
+              <motion.li
+                key={item}
+                initial={{ opacity: 0, y: 8 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 + i * 0.07, ease: EASE, duration: 0.4 }}
+                className="flex items-center gap-2 text-[13.5px] text-gray-500"
+              >
                 <svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true" className="shrink-0">
                   <circle cx="10" cy="10" r="9" fill="#e2f5ee" stroke="#0e9b78" strokeWidth="1" />
                   <path d="M6 10.5l2.5 2.5L14 7.5" stroke="#0e9b78" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 {item}
-              </li>
+              </motion.li>
             ))}
           </ul>
         </motion.div>
@@ -837,7 +983,7 @@ function Footer() {
         <div className="font-mono text-[12.5px] text-gray-400">Proyecto académico · v1.0 · 2026</div>
         <nav className="flex gap-5 text-[12.5px] text-gray-400">
           <a href="#acerca" className="transition-colors hover:text-gray-700">Acerca</a>
-          <a href="#docs" className="transition-colors hover:text-gray-700">Documentación</a>
+          <a href="#docs"   className="transition-colors hover:text-gray-700">Documentación</a>
           <a href="#github" className="transition-colors hover:text-gray-700">GitHub</a>
         </nav>
       </div>
