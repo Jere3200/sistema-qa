@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1]
 const SPRING = { type: 'spring' as const, stiffness: 380, damping: 26 }
-const VALUE_PROPS = ['Sin instalación', 'Sin base de datos', '100% en el navegador', 'Gratis']
+const VALUE_PROPS = ['Sin instalación', '100% en el navegador', 'Gratis']
 
 // ─── Matrix helpers ────────────────────────────────────────────────────────────
 
@@ -214,7 +214,7 @@ function HeroSection() {
               transition={{ duration: 2, repeat: Infinity }}
               className="h-[5px] w-[5px] rounded-full bg-teal-500"
             />
-            Proyecto académico · Datos locales · Sin backend
+            Proyecto académico - jeremías fernandez.
           </span>
         </motion.div>
 
@@ -247,8 +247,7 @@ function HeroSection() {
         >
           Documentá <strong className="font-semibold text-gray-900">historias de usuario</strong>,{' '}
           <strong className="font-semibold text-gray-900">casos de prueba</strong> en Gherkin y la
-          trazabilidad completa entre ambos. Garantizá que cada requisito tenga su prueba — sin
-          instalación, sin backend, 100% en el navegador.
+          trazabilidad completa entre ambos. Garantizá que cada requisito tenga su prueba.
         </motion.p>
 
         {/* CTA buttons */}
@@ -906,7 +905,7 @@ function FinalCTASection() {
             Empezá a documentar hoy.
           </h2>
           <p className="mt-5 text-[18px] leading-[1.55] text-gray-500">
-            Gratis, sin instalación, sin base de datos.<br />
+            Gratis, sin instalación, listo en segundos.<br />
             Tu primer proyecto está listo en menos de 4 minutos.
           </p>
 
