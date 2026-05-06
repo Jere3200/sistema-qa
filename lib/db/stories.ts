@@ -146,11 +146,12 @@ export async function addAcceptanceCriterion(
     .limit(1)
 
   const nextOrder = existing?.[0] ? (existing[0].order as number) + 1 : 1
-  await supabase.from('acceptance_criteria').insert({
+  const { error } = await supabase.from('acceptance_criteria').insert({
     user_story_id: userStoryId,
     description,
     order: nextOrder,
   })
+  if (error) throw error
   return getUserStory(userStoryId)
 }
 
@@ -159,7 +160,8 @@ export async function removeAcceptanceCriterion(
   criterionId: string
 ): Promise<UserStory | undefined> {
   const supabase = createClient()
-  await supabase.from('acceptance_criteria').delete().eq('id', criterionId)
+  const { error } = await supabase.from('acceptance_criteria').delete().eq('id', criterionId)
+  if (error) throw error
   return getUserStory(userStoryId)
 }
 
@@ -168,10 +170,15 @@ export async function replaceAcceptanceCriteria(
   descriptions: string[]
 ): Promise<void> {
   const supabase = createClient()
-  await supabase.from('acceptance_criteria').delete().eq('user_story_id', userStoryId)
+  const { error: deleteError } = await supabase
+    .from('acceptance_criteria')
+    .delete()
+    .eq('user_story_id', userStoryId)
+  if (deleteError) throw deleteError
   if (descriptions.length > 0) {
-    await supabase.from('acceptance_criteria').insert(
+    const { error: insertError } = await supabase.from('acceptance_criteria').insert(
       descriptions.map((description, i) => ({ user_story_id: userStoryId, description, order: i + 1 }))
     )
+    if (insertError) throw insertError
   }
 }

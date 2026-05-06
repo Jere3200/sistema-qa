@@ -9,7 +9,7 @@ interface AuthContextoTipo {
   cargando: boolean
   iniciarSesion: (email: string, password: string) => Promise<boolean>
   registrar: (nombre: string, email: string, password: string) => Promise<void>
-  cerrarSesion: () => void
+  cerrarSesion: () => Promise<void>
 }
 
 const AuthContexto = createContext<AuthContextoTipo | null>(null)
@@ -68,9 +68,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error) throw new Error(error.message)
   }
 
-  function cerrarSesion(): void {
+  async function cerrarSesion(): Promise<void> {
     const supabase = createClient()
-    supabase.auth.signOut()
+    await supabase.auth.signOut()
     setSesion(null)
   }
 

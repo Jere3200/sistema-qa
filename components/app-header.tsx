@@ -2,6 +2,7 @@
 
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Separator } from '@/components/ui/separator'
+import { Fragment } from 'react'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -11,13 +12,13 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 
-interface BreadcrumbItem {
+interface BreadcrumbEntry {
   label: string
   href?: string
 }
 
 interface AppHeaderProps {
-  breadcrumbs?: BreadcrumbItem[]
+  breadcrumbs?: BreadcrumbEntry[]
   actions?: React.ReactNode
 }
 
@@ -31,14 +32,16 @@ export function AppHeader({ breadcrumbs = [], actions }: AppHeaderProps) {
         <Breadcrumb>
           <BreadcrumbList>
             {breadcrumbs.map((item, index) => (
-              <BreadcrumbItem key={index}>
+              <Fragment key={index}>
                 {index > 0 && <BreadcrumbSeparator />}
-                {item.href ? (
-                  <BreadcrumbLink href={item.href}>{item.label}</BreadcrumbLink>
-                ) : (
-                  <BreadcrumbPage>{item.label}</BreadcrumbPage>
-                )}
-              </BreadcrumbItem>
+                <BreadcrumbItem>
+                  {item.href ? (
+                    <BreadcrumbLink href={item.href}>{item.label}</BreadcrumbLink>
+                  ) : (
+                    <BreadcrumbPage>{item.label}</BreadcrumbPage>
+                  )}
+                </BreadcrumbItem>
+              </Fragment>
             ))}
           </BreadcrumbList>
         </Breadcrumb>
