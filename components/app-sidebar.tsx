@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard,
@@ -84,9 +85,7 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href="/">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                  <TestTube2 className="size-4" />
-                </div>
+                <Image src="/logo.png" alt="RQA·Tracer" width={32} height={32} className="rounded-lg" />
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="font-semibold">RQA-Tracer</span>
                   <span className="text-xs text-muted-foreground">v1.0</span>

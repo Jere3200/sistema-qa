@@ -2,6 +2,7 @@
 
 import { useRef, Fragment, useEffect, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { AlertTriangle, ArrowRight, ChevronDown } from 'lucide-react'
 import { motion, useInView, animate } from 'framer-motion'
 import { Button } from '@/components/ui/button'
@@ -133,13 +134,8 @@ function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/85 backdrop-blur-lg">
       <div className="mx-auto flex h-[56px] max-w-[1240px] items-center gap-9 px-8">
-        <Link href="/" className="flex shrink-0 items-center gap-2.5" aria-label="RQA-Tracer">
-          <div className="flex h-[30px] w-[30px] items-center justify-center rounded-lg bg-teal-600">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-              <path d="M4 14L9 4l3 6 4-2" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-              <circle cx="16" cy="8" r="1.4" fill="#fff" />
-            </svg>
-          </div>
+        <Link href="/" className="flex shrink-0 items-center gap-2" aria-label="RQA-Tracer">
+          <Image src="/logo.png" alt="RQA·Tracer logo" width={36} height={36} priority />
           <span className="text-base font-semibold tracking-[-0.3px] text-gray-900">
             RQA<span className="text-teal-600">·</span>Tracer
           </span>
@@ -982,13 +978,8 @@ function Footer() {
   return (
     <footer className="bg-white px-8 py-10">
       <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-2.5" aria-label="RQA-Tracer">
-          <div className="flex h-[30px] w-[30px] items-center justify-center rounded-lg bg-teal-600">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-              <path d="M4 14L9 4l3 6 4-2" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-              <circle cx="16" cy="8" r="1.4" fill="#fff" />
-            </svg>
-          </div>
+        <Link href="/" className="flex items-center gap-2" aria-label="RQA-Tracer">
+          <Image src="/logo.png" alt="RQA·Tracer logo" width={36} height={36} />
           <span className="text-base font-semibold tracking-[-0.3px] text-gray-900">
             RQA<span className="text-teal-600">·</span>Tracer
           </span>
