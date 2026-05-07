@@ -71,7 +71,7 @@ export function ProjectDialog({ open, onOpenChange, project, onSuccess }: Projec
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px]" onInteractOutside={(e) => e.preventDefault()}>
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>{isEditing ? 'Editar Proyecto' : 'Nuevo Proyecto'}</DialogTitle>

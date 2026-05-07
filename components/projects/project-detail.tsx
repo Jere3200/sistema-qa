@@ -438,7 +438,7 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
       />
 
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent>
+        <DialogContent onInteractOutside={(e) => e.preventDefault()}>
           <DialogHeader>
             <DialogTitle>Eliminar Módulo</DialogTitle>
             <DialogDescription>

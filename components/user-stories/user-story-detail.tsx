@@ -398,7 +398,7 @@ export function UserStoryDetail({ storyId }: UserStoryDetailProps) {
       </div>
 
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent>
+        <DialogContent onInteractOutside={(e) => e.preventDefault()}>
           <DialogHeader>
             <DialogTitle>Eliminar Historia de Usuario</DialogTitle>
             <DialogDescription>

@@ -87,7 +87,7 @@ export function InviteMemberDialog({ open, onOpenChange, projectId }: InviteMemb
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px]">
+      <DialogContent className="sm:max-w-[480px]" onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <UserPlus className="size-5" />

@@ -279,7 +279,7 @@ export function TestCaseDetail({ testCaseId }: TestCaseDetailProps) {
       </div>
 
       <Dialog open={executeDialogOpen} onOpenChange={setExecuteDialogOpen}>
-        <DialogContent>
+        <DialogContent onInteractOutside={(e) => e.preventDefault()}>
           <DialogHeader>
             <DialogTitle>Ejecutar Caso de Prueba</DialogTitle>
             <DialogDescription>Registra el resultado de la ejecución</DialogDescription>
@@ -330,7 +330,7 @@ export function TestCaseDetail({ testCaseId }: TestCaseDetailProps) {
       <CommentSection testCaseId={testCase.id} />
 
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent>
+        <DialogContent onInteractOutside={(e) => e.preventDefault()}>
           <DialogHeader>
             <DialogTitle>Eliminar Caso de Prueba</DialogTitle>
             <DialogDescription>
