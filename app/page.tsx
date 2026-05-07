@@ -143,7 +143,6 @@ function Navbar() {
             { label: 'Producto', href: '#producto' },
             { label: 'Trazabilidad', href: '#trazabilidad' },
             { label: 'Cómo funciona', href: '#como-funciona' },
-            { label: 'Recursos', href: '#recursos' },
           ].map((link, i) => (
             <motion.a
               key={link.label}
