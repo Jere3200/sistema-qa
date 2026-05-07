@@ -937,7 +937,7 @@ function FinalCTASection() {
             <Button
               size="lg"
               variant="outline"
-              className="h-12 border-white/40 px-[22px] text-[14.5px] font-medium text-white hover:bg-white/10"
+              className="h-12 border-white/40 bg-transparent px-[22px] text-[14.5px] font-medium text-white hover:bg-white/10"
               asChild
             >
               <Link href="/login">Ya tengo cuenta</Link>
