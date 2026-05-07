@@ -143,7 +143,7 @@ export function GlobalChatPanel() {
   return (
     <>
       {open && (
-        <div className="fixed bottom-20 left-6 w-80 bg-background border border-border rounded-xl shadow-xl flex flex-col z-50 overflow-hidden" style={{ height: '420px' }}>
+        <div className="fixed bottom-20 right-6 w-80 bg-background border border-border rounded-xl shadow-xl flex flex-col z-50 overflow-hidden" style={{ height: '420px' }}>
 
           {/* Header */}
           <div className="flex items-center gap-2 px-4 py-3 border-b bg-muted/30 shrink-0">
@@ -265,7 +265,7 @@ export function GlobalChatPanel() {
       {/* Floating button */}
       <button
         onClick={() => setOpen((v) => !v)}
-        className="fixed bottom-6 left-6 z-50 size-12 rounded-full bg-teal-600 hover:bg-teal-700 text-white shadow-lg flex items-center justify-center transition-colors"
+        className="fixed bottom-6 right-6 z-50 size-12 rounded-full bg-teal-600 hover:bg-teal-700 text-white shadow-lg flex items-center justify-center transition-colors"
         aria-label="Mensajes"
       >
         <MessageSquare className="size-5" />
