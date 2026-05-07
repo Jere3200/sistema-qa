@@ -540,7 +540,7 @@ const TOOLS = [
 
 function ToolsSection() {
   return (
-    <section className="border-b border-gray-200 px-8 py-[120px]" id="producto">
+    <section className="border-b border-gray-200 bg-gray-50 px-8 py-[120px]" id="producto">
       <div className="mx-auto max-w-[1240px]">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -667,7 +667,7 @@ const STEPS = [
 
 function HowItWorksSection() {
   return (
-    <section className="border-b border-gray-200 bg-gray-50 px-8 py-[120px]" id="como-funciona">
+    <section className="border-b border-gray-200 bg-white px-8 py-[120px]" id="como-funciona">
       <div className="mx-auto max-w-[1240px]">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -713,7 +713,7 @@ function HowItWorksSection() {
                   viewport={{ once: true, amount: 0.5 }}
                   transition={{ ...SPRING, delay: i * 0.15 + 0.2 }}
                   className="relative z-10 flex h-14 w-14 items-center justify-center rounded-full border-2 border-teal-600 bg-white font-mono text-base font-semibold text-teal-600"
-                  style={{ boxShadow: '0 0 0 8px #f8faf9, 0 0 0 9px rgba(191,229,214,0.33)' }}
+                  style={{ boxShadow: '0 0 0 8px #ffffff, 0 0 0 9px rgba(191,229,214,0.33)' }}
                 >
                   {number}
                 </motion.div>
@@ -755,7 +755,7 @@ const RULE_ITEMS = [
 
 function TheRuleSection() {
   return (
-    <section className="border-b border-gray-200 px-8 py-[120px]" id="trazabilidad">
+    <section className="border-b border-gray-200 bg-gray-50 px-8 py-[120px]" id="trazabilidad">
       <div className="mx-auto max-w-[1240px]">
         <div className="grid items-center gap-[80px] lg:grid-cols-[1.1fr_1fr]">
 
@@ -804,7 +804,7 @@ function TheRuleSection() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: '-80px' }}
             transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
-            className="rounded-2xl border border-gray-200 bg-gray-50 p-7"
+            className="rounded-2xl border border-gray-200 bg-white p-7"
           >
             <div className="mb-3 flex items-center justify-between">
               <span className="font-mono text-[11px] text-gray-400">US-208</span>
@@ -891,7 +891,7 @@ function TheRuleSection() {
 
 function FinalCTASection() {
   return (
-    <section className="border-b border-gray-200 bg-gray-50 px-8 py-[120px]">
+    <section className="bg-teal-600 px-8 py-[120px]">
       <div className="mx-auto max-w-[880px] text-center">
         <motion.div
           initial={{ opacity: 0, y: 28 }}
@@ -899,18 +899,18 @@ function FinalCTASection() {
           viewport={{ once: true, margin: '-60px' }}
           transition={{ duration: 0.55, ease: EASE }}
         >
-          <div className="mb-6 inline-flex items-center gap-1.5 rounded border border-teal-200 bg-teal-50 px-3 py-1 text-[11px] font-medium text-teal-700">
+          <div className="mb-6 inline-flex items-center gap-1.5 rounded border border-white/30 bg-white/15 px-3 py-1 text-[11px] font-medium text-white">
             <motion.span
               animate={{ opacity: [1, 0.4, 1] }}
               transition={{ duration: 2, repeat: Infinity }}
-              className="h-[5px] w-[5px] rounded-full bg-teal-500"
+              className="h-[5px] w-[5px] rounded-full bg-white"
             />
             Listo para usar en segundos
           </div>
-          <h2 className="mt-6 text-[60px] font-semibold leading-[1] tracking-[-2.2px] text-gray-900 sm:text-[72px]">
+          <h2 className="mt-6 text-[60px] font-semibold leading-[1] tracking-[-2.2px] text-white sm:text-[72px]">
             Empezá a documentar hoy.
           </h2>
-          <p className="mt-5 text-[18px] leading-[1.55] text-gray-500">
+          <p className="mt-5 text-[18px] leading-[1.55] text-teal-100">
             Gratis, sin instalación, listo en segundos.<br />
             Tu primer proyecto está listo en menos de 4 minutos.
           </p>
@@ -921,11 +921,11 @@ function FinalCTASection() {
               <motion.div
                 animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0, 0.3] }}
                 transition={{ duration: 2.6, repeat: Infinity, ease: 'easeOut' }}
-                className="absolute inset-0 rounded-lg bg-teal-500/40 blur-sm"
+                className="absolute inset-0 rounded-lg bg-white/30 blur-sm"
               />
               <Button
                 size="lg"
-                className="relative h-12 gap-2 bg-teal-600 px-[22px] text-[14.5px] font-medium text-white shadow-lg shadow-teal-200/60 hover:bg-teal-700"
+                className="relative h-12 gap-2 bg-white px-[22px] text-[14.5px] font-medium text-teal-700 shadow-lg shadow-black/10 hover:bg-teal-50"
                 asChild
               >
                 <Link href="/register">
@@ -937,7 +937,7 @@ function FinalCTASection() {
             <Button
               size="lg"
               variant="outline"
-              className="h-12 border-gray-300 px-[22px] text-[14.5px] font-medium text-gray-800 hover:bg-gray-50"
+              className="h-12 border-white/40 px-[22px] text-[14.5px] font-medium text-white hover:bg-white/10"
               asChild
             >
               <Link href="/login">Ya tengo cuenta</Link>
@@ -952,11 +952,11 @@ function FinalCTASection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.1 + i * 0.07, ease: EASE, duration: 0.4 }}
-                className="flex items-center gap-2 text-[13.5px] text-gray-500"
+                className="flex items-center gap-2 text-[13.5px] text-teal-100"
               >
                 <svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true" className="shrink-0">
-                  <circle cx="10" cy="10" r="9" fill="#e2f5ee" stroke="#0e9b78" strokeWidth="1" />
-                  <path d="M6 10.5l2.5 2.5L14 7.5" stroke="#0e9b78" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                  <circle cx="10" cy="10" r="9" fill="rgba(255,255,255,0.2)" stroke="white" strokeWidth="1" />
+                  <path d="M6 10.5l2.5 2.5L14 7.5" stroke="white" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 {item}
               </motion.li>
@@ -972,16 +972,16 @@ function FinalCTASection() {
 
 function Footer() {
   return (
-    <footer className="bg-white px-8 py-10">
+    <footer className="bg-gray-900 px-8 py-10">
       <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-4">
         <Link href="/" className="flex items-center" aria-label="RQA-Tracer">
-          <Image src="/logo.png" alt="RQA·Tracer" width={120} height={120} className="h-10 w-auto" />
+          <Image src="/logo.png" alt="RQA·Tracer" width={120} height={120} className="h-10 w-auto opacity-80" />
         </Link>
-        <div className="font-mono text-[12.5px] text-gray-400">Proyecto académico · v1.0 · 2026</div>
-        <nav className="flex gap-5 text-[12.5px] text-gray-400">
-          <a href="#acerca" className="transition-colors hover:text-gray-700">Acerca</a>
-          <a href="#docs"   className="transition-colors hover:text-gray-700">Documentación</a>
-          <a href="#github" className="transition-colors hover:text-gray-700">GitHub</a>
+        <div className="font-mono text-[12.5px] text-gray-500">Proyecto académico · v1.0 · 2026</div>
+        <nav className="flex gap-5 text-[12.5px] text-gray-500">
+          <a href="#acerca" className="transition-colors hover:text-gray-300">Acerca</a>
+          <a href="#docs"   className="transition-colors hover:text-gray-300">Documentación</a>
+          <a href="#github" className="transition-colors hover:text-gray-300">GitHub</a>
         </nav>
       </div>
     </footer>
