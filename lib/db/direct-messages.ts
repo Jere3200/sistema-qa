@@ -37,16 +37,14 @@ function mapMessage(row: Record<string, unknown>): DMMessage {
 export async function searchUsers(query: string): Promise<UserProfile[]> {
   if (!query.trim()) return []
   const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
   const { data, error } = await supabase
-    .from('profiles')
-    .select('id, nombre, email')
-    .or(`nombre.ilike.%${query}%,email.ilike.%${query}%`)
-    .neq('id', user?.id ?? '')
-    .limit(10)
+    .rpc('search_users_safe', { query: query.trim() })
   if (error) throw error
-  return (data || []) as UserProfile[]
+  return (data || []).map((row: { id: string; nombre: string }) => ({
+    id: row.id,
+    nombre: row.nombre,
+    email: '',
+  }))
 }
 
 export async function getConversations(): Promise<DMConversation[]> {

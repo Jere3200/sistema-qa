@@ -117,18 +117,15 @@ export async function inviteMember(projectId: string, email: string): Promise<vo
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('No autenticado')
 
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('id')
-    .eq('email', email.toLowerCase().trim())
-    .single()
-  if (profileError || !profile) throw new Error(
+  const { data: userId, error: profileError } = await supabase
+    .rpc('find_user_by_email', { p_email: email.toLowerCase().trim() })
+  if (profileError || !userId) throw new Error(
     'No se pudo procesar la invitación. Verificá que el email sea correcto.'
   )
 
   const { error } = await supabase
     .from('project_members')
-    .insert({ project_id: projectId, user_id: profile.id, role: 'editor', invited_by: user.id })
+    .insert({ project_id: projectId, user_id: userId, role: 'editor', invited_by: user.id })
   if (error) {
     if (error.code === '23505') throw new Error('Ese usuario ya es miembro del proyecto')
     throw error
